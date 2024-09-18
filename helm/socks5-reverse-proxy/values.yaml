@@ -1,5 +1,6 @@
 appName: socks5-reverse-proxy
 image:
+  name: socks5-reverse-proxy
   repository: jalgraves/socks5-reverse-proxy
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.

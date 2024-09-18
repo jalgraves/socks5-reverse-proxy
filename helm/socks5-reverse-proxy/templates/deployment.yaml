@@ -25,7 +25,7 @@ spec:
       containers:
       - name: {{ include "socks5-reverse-proxy.fullname" . }}
       {{- if eq .Values.global.env "dev" }}
-        image: "socks5-reverse-proxy:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        image: "{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: Never
       {{- else }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
