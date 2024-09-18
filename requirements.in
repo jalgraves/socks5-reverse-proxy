@@ -1,0 +1,9 @@
+flask
+flask-cors
+flask-script
+flask-restful
+gunicorn
+json-logging
+pytz
+requests[socks5]
+pysocks

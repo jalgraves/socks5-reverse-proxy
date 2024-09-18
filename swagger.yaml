@@ -1,0 +1,26 @@
+openapi: 3.0.0
+info:
+  title: socks5-reverse-proxy
+  description: Forward requests to remote server through SOCKS5 proxy
+  version: 0.1.0
+
+servers:
+  - url: http://socks5-reverse-proxy:5004
+    description: Production server
+
+paths:
+  /:
+    get:
+      summary: Root endpoint
+      description: Returns response from remote server
+      responses:
+        '200':
+          description: A welcome message.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Welcome to the API!"

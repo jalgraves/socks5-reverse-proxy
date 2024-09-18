@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "socks5-reverse-proxy.fullname" . }}
+spec:
+  progressDeadlineSeconds: 600
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: {{ include "socks5-reverse-proxy.fullname" . }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ include "socks5-reverse-proxy.fullname" . }}
+    spec:
+    {{- if .Values.serviceAccount.create }}
+      serviceAccount: {{ include "socks5-reverse-proxy.serviceAccountName" . }}
+    {{- end }}
+      containers:
+      - name: {{ include "socks5-reverse-proxy.fullname" . }}
+      {{- if eq .Values.global.env "dev" }}
+        image: "socks5-reverse-proxy:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: Never
+      {{- else }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: Always
+      {{- end }}
+        ports:
+        - name: {{ printf "http-%s" (include "socks5-reverse-proxy.name" .) | trunc 15 | trimSuffix "-" }}
+          containerPort: {{ .Values.containerPort }}
+        env:
+        - name: TARGET_URL
+          value: {{ .Values.targetUrl }}
+        - name: PROXY_URL
+          value: {{ .Values.proxy.url }}
+        - name: PROXY_PORT
+          value: "{{ .Values.proxy.port }}"
+        #resources: {{- toYaml .Values.resources | nindent 10 }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: false
+
+      - name: tailscale
+        image: tailscale/tailscale
+        ports:
+        - containerPort: 1055
+          name: socks5
+        env:
+        - name: TS_AUTHKEY
+          value: {{ .Values.tailscale.authKey }}
+        - name: TS_SOCKS5_SERVER
+          value: ":1055"
+        - name: TS_HOSTNAME
+          value: {{ include "socks5-reverse-proxy.fullname" . }}
+        - name: TS_USERSPACE
+          value: "true"
+        - name: TS_OUTBOUND_HTTP_PROXY_LISTEN
+          value: ":1055"
+        - name: TS_SOCKS5_SERVER
+          value: ":1055"
+        - name: TS_EXTRA_ARGS
+          value: "--accept-routes"
+        - name: SA_NAME
+          value: {{ include "socks5-reverse-proxy.serviceAccountName" . }}
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
