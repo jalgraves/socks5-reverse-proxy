@@ -37,5 +37,4 @@ targetUrl:
 tailscale:
   enabled: "true"
   authKey:
-
-tailscaleAuthKey:
+  userspace: "true"

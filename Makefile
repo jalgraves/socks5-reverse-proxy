@@ -67,6 +67,10 @@ docker/run:
 		--rm \
 		--name $(name) \
 		-p $(port):$(port) \
+		--env TARGET_URL=${TARGET_URL} \
+		--env PROXY_URL=${PROXY_URL} \
+		--env PROXY_PORT=${PROXY_PORT} \
+		--env LOG_LEVEL="INFO" \
 		$(name):$(image_tag)
 
 

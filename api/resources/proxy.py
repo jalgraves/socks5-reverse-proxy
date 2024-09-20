@@ -14,12 +14,23 @@ class Socks5ReverseProxyException(Exception):
 
 PROXY_URL = os.environ.get('PROXY_URL')
 PROXY_PORT = os.environ.get('PROXY_PORT')
+
+if not PROXY_URL:
+    raise Socks5ReverseProxyException("Environment variable PROXY_URL is missing")
+
+if not PROXY_PORT:
+    raise Socks5ReverseProxyException("Environment variable PROXY_PORT is missing")
+
 PROXIES = {
     'http': f"{PROXY_URL}:{PROXY_PORT}",
     'https': f"{PROXY_URL}:{PROXY_PORT}"
 }
 EXCLUDED_HEADERS = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-TARGET_URL = os.environ.get('TARGET_URL', 'http://172.28.33.50')
+TARGET_URL = os.environ.get('TARGET_URL')
+
+if not TARGET_URL:
+    raise Socks5ReverseProxyException("Environment variable TARGET_URL is missing")
+
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
 LOG = init_logger(LOG_LEVEL)
 LOG.info('proxy.py logging level %s', LOG_LEVEL)
